@@ -5,6 +5,7 @@ Kafka-like durable pub/sub + request/reply backbone for Module Federation micro-
 This monorepo provides:
 
 - **`@federated-kafka/contracts`**: shared envelope/topic/protocol contracts
+- **`@federated-kafka/sdk`**: app-facing SDK package that wraps the broker client and topic helpers
 - **`@federated-kafka/broker-remote`**: Module Federation remote exposing:
   - `broker/client`
   - `broker/contracts`
@@ -39,6 +40,7 @@ The primary value is first-class **request/reply** for federated apps, with a un
 ```text
 packages/
   contracts/
+  sdk/
   broker-remote/
   server/
   host-shell/
@@ -84,6 +86,39 @@ Imported from `broker/client`:
 - `replay(topic, { fromOffset | lastN }) -> AsyncIterable<Envelope>`
 - `stats()`
 - `setDriver({ type: "memory" | "server", ... })`
+
+## SDK package (`@federated-kafka/sdk`)
+
+For existing remotes, prefer importing the SDK package instead of calling `broker/client` directly everywhere.
+
+### Why use the SDK
+
+- One place to wire MF broker loading
+- Simpler APIs in remotes (`topic()` helpers)
+- Keeps remote code independent from broker internals
+
+### Basic usage
+
+```ts
+import { createFederatedBrokerSdk } from "@federated-kafka/sdk";
+
+// Loader lives in app source, so MF plugin can rewrite it correctly.
+const broker = createFederatedBrokerSdk(() => import("broker/client"));
+
+const billing = broker.topic<{ id: string }>("billing.invoice_paid");
+await billing.publish({ id: "inv-42" });
+```
+
+### Optional global setup
+
+If you prefer direct imports like `publish()` from the SDK:
+
+```ts
+import { configureFederatedBroker, publish } from "@federated-kafka/sdk";
+
+configureFederatedBroker(() => import("broker/client"));
+await publish("billing.invoice_paid", { id: "inv-42" });
+```
 
 ### Envelope shape
 
@@ -137,15 +172,20 @@ federation({
 });
 ```
 
-2. Import broker API from federation:
+2. Add SDK package to your remotes:
 
 ```ts
-import { publish, subscribe, request, respond, setDriver } from "broker/client";
+import { createFederatedBrokerSdk } from "@federated-kafka/sdk";
+
+const broker = createFederatedBrokerSdk(() => import("broker/client"));
 ```
 
-3. Choose driver at app bootstrap:
+3. Choose driver at host bootstrap:
 
 ```ts
+const broker = await import("broker/client");
+const { setDriver } = broker;
+
 await setDriver({
   type: "server",
   wsUrl: "ws://127.0.0.1:7777/ws",
@@ -153,11 +193,12 @@ await setDriver({
 });
 ```
 
-4. Use request/reply:
+4. Use request/reply from SDK:
 
 ```ts
-respond("math.add", ({ a, b }) => ({ result: a + b }));
-const reply = await request<{ result: number }>("math.add", { a: 1, b: 2 });
+const math = broker.topic<never, { a: number; b: number }, { result: number }>("math.add");
+math.respond(({ a, b }) => ({ result: a + b }));
+const reply = await math.request({ a: 1, b: 2 });
 ```
 
 ## Tests

@@ -1,11 +1,15 @@
-import { publish, request } from "broker/client";
+import { createFederatedBrokerSdk } from "@federated-kafka/sdk";
+
+const broker = createFederatedBrokerSdk(() => import("broker/client"));
+const billingTopic = broker.topic<{ id: string }>("billing.invoice_paid");
+const mathAddTopic = broker.topic<never, { a: number; b: number }, { result: number }>("math.add");
 
 export const publishInvoicePaid = async (invoiceId: string): Promise<void> => {
-  await publish("billing.invoice_paid", { id: invoiceId });
+  await billingTopic.publish({ id: invoiceId });
 };
 
 export const requestMathAdd = async (a: number, b: number): Promise<number> => {
-  const result = await request<{ result: number }>("math.add", { a, b }, { timeoutMs: 2000 });
+  const result = await mathAddTopic.request({ a, b }, { timeoutMs: 2000 });
   return result.result;
 };
 
