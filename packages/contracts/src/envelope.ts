@@ -59,18 +59,31 @@ export const createEnvelope = <T>(
   const now = options.now ?? Date.now;
   const id = options.id ?? uuidv7;
 
-  return {
+  const envelope: Envelope<T> = {
     id: id(),
     topic: input.topic,
-    key: input.key,
     ts: now(),
     schemaVersion: input.schemaVersion ?? 1,
-    producer: input.producer,
-    correlationId: input.correlationId,
-    causationId: input.causationId,
-    replyTo: input.replyTo,
     kind: input.kind ?? "event",
     payload: input.payload
   };
+
+  if (input.key !== undefined) {
+    envelope.key = input.key;
+  }
+  if (input.producer !== undefined) {
+    envelope.producer = input.producer;
+  }
+  if (input.correlationId !== undefined) {
+    envelope.correlationId = input.correlationId;
+  }
+  if (input.causationId !== undefined) {
+    envelope.causationId = input.causationId;
+  }
+  if (input.replyTo !== undefined) {
+    envelope.replyTo = input.replyTo;
+  }
+
+  return envelope;
 };
 

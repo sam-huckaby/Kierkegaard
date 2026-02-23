@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { publishInvoicePaid, requestMathAdd } from "./feature";
 
-export const App = (): JSX.Element => {
+export const App = () => {
   const [lastInvoice, setLastInvoice] = useState<string>("-");
   const [requestState, setRequestState] = useState<string>("idle");
 

@@ -42,10 +42,10 @@ describe("MemoryBrokerDriver", () => {
   it("times out unresolved requests", async () => {
     vi.useFakeTimers();
     const driver = new MemoryBrokerDriver({ type: "memory", requestTimeoutMs: 50 });
-    const result = driver.request("math.add", { a: 1, b: 1 });
+    const assertion = expect(driver.request("math.add", { a: 1, b: 1 })).rejects.toBeInstanceOf(BrokerTimeoutError);
 
     await vi.advanceTimersByTimeAsync(60);
-    await expect(result).rejects.toBeInstanceOf(BrokerTimeoutError);
+    await assertion;
     vi.useRealTimers();
   });
 

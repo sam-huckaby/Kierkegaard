@@ -4,6 +4,7 @@ import { ClientFrameSchema, type Envelope } from "@federated-kafka/contracts";
 import { Effect } from "effect";
 import Fastify, { type FastifyInstance } from "fastify";
 import type WebSocket from "ws";
+import type { RawData } from "ws";
 import { z } from "zod";
 import { BrokerRouter } from "./broker/routing";
 import { SqlitePersistence } from "./broker/persistence";
@@ -35,11 +36,58 @@ type ErrorFrame = {
   message: string;
 };
 
+type LooseEnvelope = {
+  id: string;
+  topic: string;
+  key?: string | undefined;
+  ts: number;
+  schemaVersion: number;
+  producer?: string | undefined;
+  correlationId?: string | undefined;
+  causationId?: string | undefined;
+  replyTo?: string | undefined;
+  kind: Envelope["kind"];
+  payload: unknown;
+  offset?: number | undefined;
+};
+
 const send = (socket: WebSocket, frame: AckFrame | ErrorFrame): void => {
   if (socket.readyState !== 1) {
     return;
   }
   socket.send(JSON.stringify(frame));
+};
+
+const normalizeEnvelope = (envelope: LooseEnvelope): Envelope => {
+  const normalized: Envelope = {
+    id: envelope.id,
+    topic: envelope.topic,
+    ts: envelope.ts,
+    schemaVersion: envelope.schemaVersion,
+    kind: envelope.kind,
+    payload: envelope.payload
+  };
+
+  if (envelope.key !== undefined) {
+    normalized.key = envelope.key;
+  }
+  if (envelope.producer !== undefined) {
+    normalized.producer = envelope.producer;
+  }
+  if (envelope.correlationId !== undefined) {
+    normalized.correlationId = envelope.correlationId;
+  }
+  if (envelope.causationId !== undefined) {
+    normalized.causationId = envelope.causationId;
+  }
+  if (envelope.replyTo !== undefined) {
+    normalized.replyTo = envelope.replyTo;
+  }
+  if (envelope.offset !== undefined) {
+    normalized.offset = envelope.offset;
+  }
+
+  return normalized;
 };
 
 export const buildServer = async (options: BuildServerOptions): Promise<FastifyInstance> => {
@@ -65,28 +113,33 @@ export const buildServer = async (options: BuildServerOptions): Promise<FastifyI
       return { message: parsed.error.flatten() };
     }
 
-    const events = directPersistence.replay(parsed.data.topic, {
-      fromOffset: parsed.data.fromOffset,
-      lastN: parsed.data.lastN
-    });
+    const replayQuery: { fromOffset?: number; lastN?: number } = {};
+    if (parsed.data.fromOffset !== undefined) {
+      replayQuery.fromOffset = parsed.data.fromOffset;
+    }
+    if (parsed.data.lastN !== undefined) {
+      replayQuery.lastN = parsed.data.lastN;
+    }
+
+    const events = directPersistence.replay(parsed.data.topic, replayQuery);
     return events;
   });
 
-  app.get("/ws", { websocket: true }, (connection) => {
-    const clientId = broker.register(connection.socket);
+  app.get("/ws", { websocket: true }, (socket) => {
+    const clientId = broker.register(socket);
 
-    connection.socket.on("message", (raw) => {
+    socket.on("message", (raw: RawData) => {
       let decoded: unknown;
       try {
         decoded = JSON.parse(raw.toString());
       } catch {
-        send(connection.socket, { type: "ERROR", message: "Invalid JSON frame." });
+        send(socket, { type: "ERROR", message: "Invalid JSON frame." });
         return;
       }
 
       const parsed = ClientFrameSchema.safeParse(decoded);
       if (!parsed.success) {
-        send(connection.socket, { type: "ERROR", message: "Frame validation failed." });
+        send(socket, { type: "ERROR", message: "Frame validation failed." });
         return;
       }
 
@@ -101,22 +154,25 @@ export const buildServer = async (options: BuildServerOptions): Promise<FastifyI
           return;
         }
 
-        const persisted = broker.publishFromClient(clientId, frame.envelope);
-        send(connection.socket, {
+        const persisted = broker.publishFromClient(clientId, normalizeEnvelope(frame.envelope as LooseEnvelope));
+        send(socket, {
           type: "ACK",
           requestId: frame.requestId,
           envelope: persisted
         });
       } catch (error: unknown) {
-        send(connection.socket, {
+        const errorFrame: ErrorFrame = {
           type: "ERROR",
-          requestId: "requestId" in frame ? frame.requestId : undefined,
           message: error instanceof Error ? error.message : String(error)
-        });
+        };
+        if ("requestId" in frame) {
+          errorFrame.requestId = frame.requestId;
+        }
+        send(socket, errorFrame);
       }
     });
 
-    connection.socket.on("close", () => {
+    socket.on("close", () => {
       broker.unregister(clientId);
     });
   });

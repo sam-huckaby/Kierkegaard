@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { startInvoiceSubscriber, startMathResponder } from "./feature";
 
-export const App = (): JSX.Element => {
+export const App = () => {
   const [invoices, setInvoices] = useState<string[]>([]);
   const [responderReady, setResponderReady] = useState(false);
 

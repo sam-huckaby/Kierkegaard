@@ -1,14 +1,7 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
+import * as brokerClient from "broker/client";
 import { App } from "../src/App";
-
-const publishMock = vi.fn(async () => undefined);
-const requestMock = vi.fn(async () => ({ result: 21 }));
-
-vi.mock("broker/client", () => ({
-  publish: publishMock,
-  request: requestMock
-}));
 
 describe("Remote A App", () => {
   it("renders publish and request controls", async () => {
@@ -18,12 +11,14 @@ describe("Remote A App", () => {
   });
 
   it("invokes broker calls on actions", async () => {
+    const publishSpy = vi.spyOn(brokerClient, "publish");
+    const requestSpy = vi.spyOn(brokerClient, "request");
     render(<App />);
     fireEvent.click(screen.getByTestId("publish-btn"));
     fireEvent.click(screen.getByTestId("request-btn"));
 
-    expect(publishMock).toHaveBeenCalled();
-    expect(requestMock).toHaveBeenCalled();
+    expect(publishSpy).toHaveBeenCalled();
+    expect(requestSpy).toHaveBeenCalled();
   });
 });
 

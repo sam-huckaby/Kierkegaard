@@ -21,14 +21,30 @@ const resolveDriverConfig = () => {
   };
 };
 
-export const App = (): JSX.Element => {
+export const App = () => {
   const [showDevtools, setShowDevtools] = useState(true);
   const [driverLabel, setDriverLabel] = useState<string>("initializing");
+  const [driverReady, setDriverReady] = useState(false);
 
   useEffect(() => {
     const config = resolveDriverConfig();
     setDriverLabel(config.type);
-    void setDriver(config);
+    let mounted = true;
+    void setDriver(config)
+      .then(() => {
+        if (mounted) {
+          setDriverReady(true);
+        }
+      })
+      .catch((error: unknown) => {
+        if (mounted) {
+          setDriverLabel(`failed: ${error instanceof Error ? error.message : String(error)}`);
+        }
+      });
+
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   return (
@@ -37,12 +53,18 @@ export const App = (): JSX.Element => {
       <p data-testid="driver-mode">Driver mode: {driverLabel}</p>
 
       <div style={{ display: "grid", gap: 12, gridTemplateColumns: "1fr 1fr" }}>
-        <Suspense fallback={<div>Loading Remote A...</div>}>
-          <RemoteAApp />
-        </Suspense>
-        <Suspense fallback={<div>Loading Remote B...</div>}>
-          <RemoteBApp />
-        </Suspense>
+        {driverReady ? (
+          <>
+            <Suspense fallback={<div>Loading Remote A...</div>}>
+              <RemoteAApp />
+            </Suspense>
+            <Suspense fallback={<div>Loading Remote B...</div>}>
+              <RemoteBApp />
+            </Suspense>
+          </>
+        ) : (
+          <div data-testid="broker-initializing">Initializing broker driver...</div>
+        )}
       </div>
 
       <button type="button" onClick={() => setShowDevtools((current) => !current)} style={{ marginTop: 12 }}>

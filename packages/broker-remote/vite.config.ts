@@ -13,12 +13,7 @@ export default defineConfig({
         "./contracts": "./src/contracts.ts",
         "./devtools": "./src/devtools/DevtoolsApp.tsx"
       },
-      shared: {
-        react: { singleton: true },
-        "react-dom": { singleton: true },
-        effect: { singleton: true },
-        "@federated-kafka/contracts": { singleton: true }
-      }
+      shared: ["react", "react-dom", "effect", "@federated-kafka/contracts"]
     })
   ],
   build: {

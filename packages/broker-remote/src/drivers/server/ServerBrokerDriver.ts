@@ -209,7 +209,8 @@ export class ServerBrokerDriver implements BrokerDriver {
         return;
       }
 
-      void Promise.resolve(handler(envelope.payload, envelope))
+      void Promise.resolve()
+        .then(() => handler(envelope.payload, envelope))
         .then((replyPayload) =>
           this.publish(envelope.replyTo ?? "_reply.unrouted", replyPayload, {
             kind: "reply",
@@ -453,6 +454,10 @@ export class ServerBrokerDriver implements BrokerDriver {
   }
 
   private resolvePendingRequest(envelope: Envelope): void {
+    if (envelope.kind !== "reply" && envelope.kind !== "error") {
+      return;
+    }
+
     const correlationId = envelope.correlationId;
     if (!correlationId) {
       return;
@@ -476,9 +481,7 @@ export class ServerBrokerDriver implements BrokerDriver {
       return;
     }
 
-    if (envelope.kind === "reply") {
-      pending.resolve(envelope.payload);
-    }
+    pending.resolve(envelope.payload);
   }
 }
 

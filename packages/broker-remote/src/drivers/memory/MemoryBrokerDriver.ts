@@ -236,7 +236,8 @@ export class MemoryBrokerDriver implements BrokerDriver {
     );
 
     matchingResponders.forEach((responder) => {
-      void Promise.resolve(responder.handler(requestEnvelope.payload, requestEnvelope))
+      void Promise.resolve()
+        .then(() => responder.handler(requestEnvelope.payload, requestEnvelope))
         .then((replyPayload) => {
           if (!requestEnvelope.replyTo || !requestEnvelope.correlationId) {
             return;

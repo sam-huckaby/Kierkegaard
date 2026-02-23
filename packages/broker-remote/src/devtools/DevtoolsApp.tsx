@@ -4,7 +4,7 @@ import { stats, subscribe } from "../client";
 
 const MAX_EVENTS = 200;
 
-export const DevtoolsApp = (): JSX.Element => {
+export const DevtoolsApp = () => {
   const [events, setEvents] = useState<Envelope[]>([]);
   const [snapshot, setSnapshot] = useState<Record<string, unknown>>({});
 

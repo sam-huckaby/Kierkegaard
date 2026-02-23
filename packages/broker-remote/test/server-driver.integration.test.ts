@@ -77,7 +77,9 @@ describe("ServerBrokerDriver", () => {
     expect(persistedEvent.offset).toBe(1);
 
     await waitFor(() => seenEvents.length === 1);
-    expect((seenEvents[0].payload as { id: string }).id).toBe("inv-1");
+    const firstSeen = seenEvents.at(0);
+    expect(firstSeen).toBeDefined();
+    expect((firstSeen!.payload as { id: string }).id).toBe("inv-1");
 
     responder.respond("math.add", (payload) => {
       const p = payload as { a: number; b: number };

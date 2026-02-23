@@ -12,10 +12,7 @@ export default defineConfig({
         remoteA: "http://localhost:4171/assets/remoteEntry.js",
         remoteB: "http://localhost:4172/assets/remoteEntry.js"
       },
-      shared: {
-        react: { singleton: true },
-        "react-dom": { singleton: true }
-      }
+      shared: ["react", "react-dom"]
     })
   ],
   build: {
