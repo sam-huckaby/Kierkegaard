@@ -1,4 +1,4 @@
-# Federated Kafka
+# Kierkegaard (Federated Kafka)
 
 Kafka-like durable pub/sub + request/reply backbone for Module Federation micro-frontends.
 
@@ -35,6 +35,78 @@ The primary value is first-class **request/reply** for federated apps, with a un
 - SQLite engine (`sql.js`) persisted to `.sqlite` file on disk
 - Effect.ts for service/layer orchestration in broker/client and server bootstrap paths
 
+## Getting Started (Integrate Kierkegaard into an existing MF platform)
+
+This section is for teams that already have a host + remotes and want to plug in Kierkegaard.
+
+### 1) Run/deploy Kierkegaard infrastructure
+
+At minimum, you need:
+
+- broker remote entry (exposes `broker/client`)
+- optional durable server (required for durable mode + replay)
+
+Local defaults used in examples:
+
+- broker remote: `http://127.0.0.1:4173/assets/remoteEntry.js`
+- broker server: `http://127.0.0.1:7777`
+
+### 2) Add broker remote to your host/remotes federation config
+
+```ts
+// vite.config.ts
+federation({
+  remotes: {
+    broker: "http://127.0.0.1:4173/assets/remoteEntry.js"
+  }
+});
+```
+
+### 3) Add SDK package to your remotes
+
+```ts
+import { createFederatedBrokerSdk } from "@federated-kafka/sdk";
+
+// Keep loader in app source so MF runtime can rewrite import correctly.
+export const broker = createFederatedBrokerSdk(() => import("broker/client"));
+```
+
+### 4) Configure driver once in host bootstrap
+
+```ts
+const brokerModule = await import("broker/client");
+const { setDriver } = brokerModule;
+
+await setDriver({
+  type: "server", // use "memory" for single-runtime non-durable mode
+  wsUrl: "ws://127.0.0.1:7777/ws",
+  httpUrl: "http://127.0.0.1:7777"
+});
+```
+
+### 5) Use topic helpers in each remote
+
+```ts
+import { broker } from "./broker";
+
+await broker.ready(); // recommended before subscribe/respond
+
+const billing = broker.topic<{ id: string }>("billing.invoice_paid");
+const math = broker.topic<never, { a: number; b: number }, { result: number }>("math.add");
+
+billing.subscribe((payload) => {
+  console.log("invoice", payload.id);
+});
+
+math.respond(({ a, b }) => ({ result: a + b }));
+const reply = await math.request({ a: 2, b: 3 });
+```
+
+### 6) Choose your operating mode
+
+- **Memory mode**: fastest setup, single browser runtime, non-durable.
+- **Server mode**: durable persistence + replay + cross-session recovery.
+
 ## Monorepo Structure
 
 ```text
@@ -48,14 +120,16 @@ packages/
   remote-b/
 ```
 
-## Quick Start
+## Development on Kierkegaard
+
+This section is for contributors developing the Kierkegaard library itself.
 
 ```bash
 pnpm install
 pnpm dev
 ```
 
-`pnpm dev` runs all dev servers in parallel:
+`pnpm dev` runs all local development services:
 
 - server (Fastify): `http://127.0.0.1:7777`
 - broker remote: `http://127.0.0.1:4173`
@@ -158,48 +232,6 @@ Server persistence stores:
 - envelope metadata + payload
 - per-topic monotonically increasing offset
 - correlation metadata for request/reply
-
-## Module Federation Integration Guide (for a new MFE)
-
-1. Configure remote in your host/remotes:
-
-```ts
-// vite.config.ts
-federation({
-  remotes: {
-    broker: "http://127.0.0.1:4173/assets/remoteEntry.js"
-  }
-});
-```
-
-2. Add SDK package to your remotes:
-
-```ts
-import { createFederatedBrokerSdk } from "@federated-kafka/sdk";
-
-const broker = createFederatedBrokerSdk(() => import("broker/client"));
-```
-
-3. Choose driver at host bootstrap:
-
-```ts
-const broker = await import("broker/client");
-const { setDriver } = broker;
-
-await setDriver({
-  type: "server",
-  wsUrl: "ws://127.0.0.1:7777/ws",
-  httpUrl: "http://127.0.0.1:7777"
-});
-```
-
-4. Use request/reply from SDK:
-
-```ts
-const math = broker.topic<never, { a: number; b: number }, { result: number }>("math.add");
-math.respond(({ a, b }) => ({ result: a + b }));
-const reply = await math.request({ a: 1, b: 2 });
-```
 
 ## Tests
 
