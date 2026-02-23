@@ -1,4 +1,4 @@
-import { EnvelopeSchema, type Envelope, type Topic } from "@federated-kafka/contracts";
+import { EnvelopeSchema, type Envelope, type Topic } from "@kierkegaard/contracts";
 import fs from "node:fs";
 import path from "node:path";
 import initSqlJs from "sql.js";

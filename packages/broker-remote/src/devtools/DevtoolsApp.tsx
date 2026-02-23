@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import type { Envelope } from "@federated-kafka/contracts";
+import type { Envelope } from "@kierkegaard/contracts";
 import { stats, subscribe } from "../client";
 
 const MAX_EVENTS = 200;

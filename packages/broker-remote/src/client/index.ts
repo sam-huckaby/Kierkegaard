@@ -1,4 +1,4 @@
-import type { Envelope, Topic } from "@federated-kafka/contracts";
+import type { Envelope, Topic } from "@kierkegaard/contracts";
 import { MemoryBrokerDriver } from "../drivers/memory/MemoryBrokerDriver";
 import { ServerBrokerDriver } from "../drivers/server/ServerBrokerDriver";
 import type {

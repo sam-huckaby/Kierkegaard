@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { createEnvelope } from "@federated-kafka/contracts";
+import { createEnvelope } from "@kierkegaard/contracts";
 import { afterEach, describe, expect, it } from "vitest";
 import { SqlitePersistence } from "../src/broker/persistence";
 

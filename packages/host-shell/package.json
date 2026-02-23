@@ -1,5 +1,5 @@
 {
-  "name": "@federated-kafka/host-shell",
+  "name": "@kierkegaard/host-shell",
   "version": "0.1.0",
   "private": true,
   "type": "module",

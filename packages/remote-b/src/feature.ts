@@ -1,4 +1,4 @@
-import { createFederatedBrokerSdk } from "@federated-kafka/sdk";
+import { createFederatedBrokerSdk } from "@kierkegaard/sdk";
 
 const broker = createFederatedBrokerSdk(() => import("broker/client"));
 const billingTopic = broker.topic<{ id?: string }>("billing.*");

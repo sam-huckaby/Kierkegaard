@@ -13,7 +13,7 @@ export default defineConfig({
         "./contracts": "./src/contracts.ts",
         "./devtools": "./src/devtools/DevtoolsApp.tsx"
       },
-      shared: ["react", "react-dom", "effect", "@federated-kafka/contracts"]
+      shared: ["react", "react-dom", "effect", "@kierkegaard/contracts"]
     })
   ],
   build: {

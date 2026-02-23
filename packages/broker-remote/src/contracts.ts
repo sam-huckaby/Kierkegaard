@@ -1,1 +1,1 @@
-export * from "@federated-kafka/contracts";
+export * from "@kierkegaard/contracts";

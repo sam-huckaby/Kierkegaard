@@ -10,7 +10,7 @@
     "test": "pnpm -r --if-present run test",
     "lint": "pnpm -r --if-present run lint",
     "typecheck": "pnpm -r --if-present run typecheck",
-    "e2e": "pnpm -F @federated-kafka/host-shell run e2e"
+    "e2e": "pnpm -F @kierkegaard/host-shell run e2e"
   },
   "devDependencies": {
     "@types/node": "^25.3.0",

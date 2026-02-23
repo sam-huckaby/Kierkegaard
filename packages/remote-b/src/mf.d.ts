@@ -1,5 +1,5 @@
 declare module "broker/client" {
-  import type { Envelope } from "@federated-kafka/contracts";
+  import type { Envelope } from "@kierkegaard/contracts";
 
   export type PublishOptions = {
     key?: string;

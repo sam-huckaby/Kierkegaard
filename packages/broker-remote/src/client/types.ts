@@ -1,4 +1,4 @@
-import type { Envelope, Topic } from "@federated-kafka/contracts";
+import type { Envelope, Topic } from "@kierkegaard/contracts";
 
 export type Unsubscribe = () => void;
 

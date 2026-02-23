@@ -4,7 +4,7 @@ import {
   validateTopicPattern,
   type Envelope,
   type Topic
-} from "@federated-kafka/contracts";
+} from "@kierkegaard/contracts";
 import { v7 as uuidv7 } from "uuid";
 import {
   BrokerResponseError,

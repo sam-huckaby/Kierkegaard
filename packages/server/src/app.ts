@@ -1,6 +1,6 @@
 import cors from "@fastify/cors";
 import websocket from "@fastify/websocket";
-import { ClientFrameSchema, type Envelope } from "@federated-kafka/contracts";
+import { ClientFrameSchema, type Envelope } from "@kierkegaard/contracts";
 import { Effect } from "effect";
 import Fastify, { type FastifyInstance } from "fastify";
 import type WebSocket from "ws";

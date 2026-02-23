@@ -26,7 +26,7 @@ importers:
 
   packages/broker-remote:
     dependencies:
-      '@federated-kafka/contracts':
+      '@kierkegaard/contracts':
         specifier: workspace:*
         version: link:../contracts
       effect:
@@ -45,7 +45,7 @@ importers:
         specifier: ^4.3.6
         version: 4.3.6
     devDependencies:
-      '@federated-kafka/server':
+      '@kierkegaard/server':
         specifier: workspace:*
         version: link:../server
       '@originjs/vite-plugin-federation':
@@ -137,10 +137,10 @@ importers:
 
   packages/remote-a:
     dependencies:
-      '@federated-kafka/contracts':
+      '@kierkegaard/contracts':
         specifier: workspace:*
         version: link:../contracts
-      '@federated-kafka/sdk':
+      '@kierkegaard/sdk':
         specifier: workspace:*
         version: link:../sdk
       react:
@@ -180,10 +180,10 @@ importers:
 
   packages/remote-b:
     dependencies:
-      '@federated-kafka/contracts':
+      '@kierkegaard/contracts':
         specifier: workspace:*
         version: link:../contracts
-      '@federated-kafka/sdk':
+      '@kierkegaard/sdk':
         specifier: workspace:*
         version: link:../sdk
       react:
@@ -223,7 +223,7 @@ importers:
 
   packages/sdk:
     dependencies:
-      '@federated-kafka/contracts':
+      '@kierkegaard/contracts':
         specifier: workspace:*
         version: link:../contracts
     devDependencies:
@@ -239,7 +239,7 @@ importers:
       '@fastify/websocket':
         specifier: ^11.2.0
         version: 11.2.0
-      '@federated-kafka/contracts':
+      '@kierkegaard/contracts':
         specifier: workspace:*
         version: link:../contracts
       effect:

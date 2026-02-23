@@ -1,4 +1,4 @@
-import { createEnvelope } from "@federated-kafka/contracts";
+import { createEnvelope } from "@kierkegaard/contracts";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
   configureFederatedBroker,
@@ -31,7 +31,7 @@ const makeMockBrokerModule = (): BrokerClientModule => {
   };
 };
 
-describe("@federated-kafka/sdk", () => {
+describe("@kierkegaard/sdk", () => {
   beforeEach(() => {
     unsafeResetFederatedBrokerForTests();
     vi.restoreAllMocks();

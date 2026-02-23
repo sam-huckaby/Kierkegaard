@@ -4,14 +4,14 @@ Kafka-like durable pub/sub + request/reply backbone for Module Federation micro-
 
 This monorepo provides:
 
-- **`@federated-kafka/contracts`**: shared envelope/topic/protocol contracts
-- **`@federated-kafka/sdk`**: app-facing SDK package that wraps the broker client and topic helpers
-- **`@federated-kafka/broker-remote`**: Module Federation remote exposing:
+- **`@kierkegaard/contracts`**: shared envelope/topic/protocol contracts
+- **`@kierkegaard/sdk`**: app-facing SDK package that wraps the broker client and topic helpers
+- **`@kierkegaard/broker-remote`**: Module Federation remote exposing:
   - `broker/client`
   - `broker/contracts`
   - `broker/devtools`
-- **`@federated-kafka/server`**: Fastify + WebSocket + durable SQLite-backed broker server
-- **`@federated-kafka/host-shell`**, **`remote-a`**, **`remote-b`**: demo MF host/remotes
+- **`@kierkegaard/server`**: Fastify + WebSocket + durable SQLite-backed broker server
+- **`@kierkegaard/host-shell`**, **`remote-a`**, **`remote-b`**: demo MF host/remotes
 
 The primary value is first-class **request/reply** for federated apps, with a unified client API that can run in:
 
@@ -65,7 +65,7 @@ federation({
 ### 3) Add SDK package to your remotes
 
 ```ts
-import { createFederatedBrokerSdk } from "@federated-kafka/sdk";
+import { createFederatedBrokerSdk } from "@kierkegaard/sdk";
 
 // Keep loader in app source so MF runtime can rewrite import correctly.
 export const broker = createFederatedBrokerSdk(() => import("broker/client"));
@@ -161,7 +161,7 @@ Imported from `broker/client`:
 - `stats()`
 - `setDriver({ type: "memory" | "server", ... })`
 
-## SDK package (`@federated-kafka/sdk`)
+## SDK package (`@kierkegaard/sdk`)
 
 For existing remotes, prefer importing the SDK package instead of calling `broker/client` directly everywhere.
 
@@ -174,7 +174,7 @@ For existing remotes, prefer importing the SDK package instead of calling `broke
 ### Basic usage
 
 ```ts
-import { createFederatedBrokerSdk } from "@federated-kafka/sdk";
+import { createFederatedBrokerSdk } from "@kierkegaard/sdk";
 
 // Loader lives in app source, so MF plugin can rewrite it correctly.
 const broker = createFederatedBrokerSdk(() => import("broker/client"));
@@ -188,7 +188,7 @@ await billing.publish({ id: "inv-42" });
 If you prefer direct imports like `publish()` from the SDK:
 
 ```ts
-import { configureFederatedBroker, publish } from "@federated-kafka/sdk";
+import { configureFederatedBroker, publish } from "@kierkegaard/sdk";
 
 configureFederatedBroker(() => import("broker/client"));
 await publish("billing.invoice_paid", { id: "inv-42" });
@@ -246,7 +246,7 @@ pnpm build
 Run e2e smoke test:
 
 ```bash
-pnpm -F @federated-kafka/host-shell e2e
+pnpm -F @kierkegaard/host-shell e2e
 ```
 
 Current automated coverage includes:

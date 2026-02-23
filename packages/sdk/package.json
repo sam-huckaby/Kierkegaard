@@ -1,5 +1,5 @@
 {
-  "name": "@federated-kafka/sdk",
+  "name": "@kierkegaard/sdk",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -17,7 +17,7 @@
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
-    "@federated-kafka/contracts": "workspace:*"
+    "@kierkegaard/contracts": "workspace:*"
   },
   "devDependencies": {
     "@vitest/coverage-v8": "^4.0.18"

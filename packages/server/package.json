@@ -1,5 +1,5 @@
 {
-  "name": "@federated-kafka/server",
+  "name": "@kierkegaard/server",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -24,7 +24,7 @@
   "dependencies": {
     "@fastify/cors": "^11.2.0",
     "@fastify/websocket": "^11.2.0",
-    "@federated-kafka/contracts": "workspace:*",
+    "@kierkegaard/contracts": "workspace:*",
     "effect": "^3.19.19",
     "fastify": "^5.7.4",
     "sql.js": "^1.14.0",

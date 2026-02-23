@@ -1,5 +1,5 @@
 {
-  "name": "@federated-kafka/broker-remote",
+  "name": "@kierkegaard/broker-remote",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -10,7 +10,7 @@
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
-    "@federated-kafka/contracts": "workspace:*",
+    "@kierkegaard/contracts": "workspace:*",
     "effect": "^3.19.19",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
@@ -18,7 +18,7 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
-    "@federated-kafka/server": "workspace:*",
+    "@kierkegaard/server": "workspace:*",
     "@originjs/vite-plugin-federation": "^1.4.1",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",

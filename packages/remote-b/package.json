@@ -1,5 +1,5 @@
 {
-  "name": "@federated-kafka/remote-b",
+  "name": "@kierkegaard/remote-b",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -10,8 +10,8 @@
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
-    "@federated-kafka/contracts": "workspace:*",
-    "@federated-kafka/sdk": "workspace:*",
+    "@kierkegaard/contracts": "workspace:*",
+    "@kierkegaard/sdk": "workspace:*",
     "react": "^19.2.4",
     "react-dom": "^19.2.4"
   },

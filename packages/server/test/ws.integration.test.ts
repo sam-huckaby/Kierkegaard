@@ -4,7 +4,7 @@ import path from "node:path";
 import type { AddressInfo } from "node:net";
 import WebSocket from "ws";
 import { afterEach, describe, expect, it } from "vitest";
-import { createEnvelope, type Envelope } from "@federated-kafka/contracts";
+import { createEnvelope, type Envelope } from "@kierkegaard/contracts";
 import { buildServer } from "../src/app";
 
 type Frame =

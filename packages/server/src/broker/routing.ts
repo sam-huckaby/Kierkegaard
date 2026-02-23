@@ -1,4 +1,4 @@
-import { matchTopicPattern, validateTopicPattern, type Envelope } from "@federated-kafka/contracts";
+import { matchTopicPattern, validateTopicPattern, type Envelope } from "@kierkegaard/contracts";
 import { v7 as uuidv7 } from "uuid";
 import type WebSocket from "ws";
 import { SqlitePersistence } from "./persistence";

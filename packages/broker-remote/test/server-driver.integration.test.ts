@@ -4,8 +4,8 @@ import path from "node:path";
 import type { AddressInfo } from "node:net";
 import WebSocket from "ws";
 import { afterEach, describe, expect, it } from "vitest";
-import type { Envelope } from "@federated-kafka/contracts";
-import { buildServer } from "@federated-kafka/server/app";
+import type { Envelope } from "@kierkegaard/contracts";
+import { buildServer } from "@kierkegaard/server/app";
 import { ServerBrokerDriver } from "../src/drivers/server/ServerBrokerDriver";
 import { BrokerTimeoutError, type ServerDriverConfig, type WebSocketFactory } from "../src/client/types";
 
