@@ -14,7 +14,7 @@ import type {
 } from "../types";
 import { getBrokerClient } from "../index";
 
-export class BrokerClientService extends Context.Tag("federated-kafka/BrokerClientService")<
+export class BrokerClientService extends Context.Tag("kierkegaard/BrokerClientService")<
   BrokerClientService,
   BrokerClient
 >() {}

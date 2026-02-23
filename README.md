@@ -22,7 +22,7 @@ The primary value is first-class **request/reply** for federated apps, with a un
 
 - Topic strings + payload schemas are the coupling boundary.
 - Broker API is imported as a **federated remote** (not shared source import), so remotes are loosely coupled.
-- Broker singleton is guarded with `globalThis[Symbol.for("federated-kafka/broker")]` to prevent accidental duplication.
+- Broker singleton is guarded with `globalThis[Symbol.for("kierkegaard/broker")]` to prevent accidental duplication.
 - Server ack guarantees durability: once a publish ACK is returned, the event has been persisted.
 
 ## Tech Stack
@@ -146,7 +146,7 @@ Important variables:
 - `BROKER_DRIVER=memory|server`
 - `BROKER_WS_URL=ws://127.0.0.1:7777/ws`
 - `BROKER_HTTP_URL=http://127.0.0.1:7777`
-- `BROKER_DB_PATH=./federated-kafka.sqlite`
+- `BROKER_DB_PATH=./kierkegaard.sqlite`
 - `VITE_BROKER_DRIVER=memory|server` (host runtime selection)
 
 ## Public Broker Client API

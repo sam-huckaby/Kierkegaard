@@ -15,7 +15,7 @@ type Frame =
 const resources: Array<{ dbPath: string; close: () => Promise<void> }> = [];
 
 const makeDbPath = (): string => {
-  const filePath = path.join(os.tmpdir(), `federated-kafka-ws-${Date.now()}-${Math.random().toString(16).slice(2)}.sqlite`);
+  const filePath = path.join(os.tmpdir(), `kierkegaard-ws-${Date.now()}-${Math.random().toString(16).slice(2)}.sqlite`);
   return filePath;
 };
 

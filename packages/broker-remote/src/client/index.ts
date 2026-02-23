@@ -15,7 +15,7 @@ import type {
   Unsubscribe
 } from "./types";
 
-const BROKER_SYMBOL = Symbol.for("federated-kafka/broker");
+const BROKER_SYMBOL = Symbol.for("kierkegaard/broker");
 
 type BrokerGlobal = {
   [BROKER_SYMBOL]?: FederatedBrokerClient;

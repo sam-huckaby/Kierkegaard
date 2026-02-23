@@ -2,12 +2,12 @@ import { Context, Layer } from "effect";
 import { BrokerRouter } from "./routing";
 import { SqlitePersistence } from "./persistence";
 
-export class PersistenceService extends Context.Tag("federated-kafka/server/PersistenceService")<
+export class PersistenceService extends Context.Tag("kierkegaard/server/PersistenceService")<
   PersistenceService,
   SqlitePersistence
 >() {}
 
-export class RouterService extends Context.Tag("federated-kafka/server/RouterService")<
+export class RouterService extends Context.Tag("kierkegaard/server/RouterService")<
   RouterService,
   BrokerRouter
 >() {}

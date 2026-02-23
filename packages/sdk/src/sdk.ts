@@ -23,7 +23,7 @@ type SdkGlobalState = {
   modulePromise?: Promise<BrokerClientModule>;
 };
 
-const STATE_SYMBOL = Symbol.for("federated-kafka/sdk-state");
+const STATE_SYMBOL = Symbol.for("kierkegaard/sdk-state");
 
 const getState = (): SdkGlobalState => {
   const host = globalThis as Record<symbol, SdkGlobalState | undefined>;

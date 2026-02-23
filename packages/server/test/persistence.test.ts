@@ -8,7 +8,7 @@ import { SqlitePersistence } from "../src/broker/persistence";
 const tempPaths: string[] = [];
 
 const makeDbPath = (): string => {
-  const filePath = path.join(os.tmpdir(), `federated-kafka-${Date.now()}-${Math.random().toString(16).slice(2)}.sqlite`);
+  const filePath = path.join(os.tmpdir(), `kierkegaard-${Date.now()}-${Math.random().toString(16).slice(2)}.sqlite`);
   tempPaths.push(filePath);
   return filePath;
 };

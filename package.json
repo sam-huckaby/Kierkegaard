@@ -1,5 +1,5 @@
 {
-  "name": "federated-kafka",
+  "name": "kierkegaard",
   "version": "0.1.0",
   "private": true,
   "description": "Kafka-like durable pub/sub and request/reply for module-federated frontends",
