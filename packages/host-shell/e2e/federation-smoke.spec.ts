@@ -2,6 +2,7 @@ import { expect, test } from "@playwright/test";
 
 test("cross-remote publish and request/reply", async ({ page }) => {
   await page.goto("/");
+  await expect(page.getByTestId("responder-state")).toContainText("ready");
 
   await page.getByTestId("publish-btn").click();
   await expect(page.getByTestId("invoice-count")).toContainText("1");

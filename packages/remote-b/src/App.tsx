@@ -1,19 +1,29 @@
 import { useEffect, useState } from "react";
-import { startInvoiceSubscriber, startMathResponder } from "./feature";
+import { ensureBrokerReady, startInvoiceSubscriber, startMathResponder } from "./feature";
 
 export const App = () => {
   const [invoices, setInvoices] = useState<string[]>([]);
   const [responderReady, setResponderReady] = useState(false);
 
   useEffect(() => {
-    const unsubscribe = startInvoiceSubscriber((invoiceId) => {
-      setInvoices((current) => [invoiceId, ...current].slice(0, 20));
+    let closed = false;
+    let unsubscribe: () => void = () => undefined;
+    let stopResponder: () => void = () => undefined;
+
+    void ensureBrokerReady().then(() => {
+      if (closed) {
+        return;
+      }
+
+      unsubscribe = startInvoiceSubscriber((invoiceId) => {
+        setInvoices((current) => [invoiceId, ...current].slice(0, 20));
+      });
+      stopResponder = startMathResponder();
+      setResponderReady(true);
     });
 
-    const stopResponder = startMathResponder();
-    setResponderReady(true);
-
     return () => {
+      closed = true;
       unsubscribe();
       stopResponder();
       setResponderReady(false);

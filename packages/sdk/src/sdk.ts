@@ -19,6 +19,7 @@ import { FederatedBrokerNotConfiguredError } from "./types";
 
 type SdkGlobalState = {
   loader?: BrokerModuleLoader;
+  module?: BrokerClientModule;
   modulePromise?: Promise<BrokerClientModule>;
 };
 
@@ -34,34 +35,63 @@ const getState = (): SdkGlobalState => {
 
 const assertBrokerModule = (value: unknown): BrokerClientModule => {
   const asRecord = value as Record<string, unknown>;
+  const candidate =
+    "default" in asRecord && typeof asRecord.default === "object" && asRecord.default !== null
+      ? (asRecord.default as Record<string, unknown>)
+      : asRecord;
   const requiredMethods = ["publish", "subscribe", "request", "respond", "replay", "stats", "setDriver"];
-  const missing = requiredMethods.filter((name) => typeof asRecord[name] !== "function");
+  const missing = requiredMethods.filter((name) => typeof candidate[name] !== "function");
   if (missing.length > 0) {
     throw new Error(`Broker module is missing required methods: ${missing.join(", ")}`);
   }
-  return value as BrokerClientModule;
+  return candidate as unknown as BrokerClientModule;
 };
 
-const makeLoader = (loader?: BrokerModuleLoader): (() => Promise<BrokerClientModule>) => {
+type LoaderHandle = {
+  load: () => Promise<BrokerClientModule>;
+  getLoaded: () => BrokerClientModule | undefined;
+};
+
+const makeLoader = (loader?: BrokerModuleLoader): LoaderHandle => {
   if (loader) {
+    let localModule: BrokerClientModule | undefined;
     let localPromise: Promise<BrokerClientModule> | undefined;
-    return async () => {
-      if (!localPromise) {
-        localPromise = loader().then(assertBrokerModule);
-      }
-      return localPromise;
+    return {
+      load: async () => {
+        if (localModule) {
+          return localModule;
+        }
+        if (!localPromise) {
+          localPromise = loader()
+            .then(assertBrokerModule)
+            .then((brokerModule) => {
+              localModule = brokerModule;
+              return brokerModule;
+            });
+        }
+        return localPromise;
+      },
+      getLoaded: () => localModule
     };
   }
 
-  return async () => {
-    const state = getState();
-    if (!state.loader) {
-      throw new FederatedBrokerNotConfiguredError();
-    }
-    if (!state.modulePromise) {
-      state.modulePromise = state.loader().then(assertBrokerModule);
-    }
-    return state.modulePromise;
+  return {
+    load: async () => {
+      const state = getState();
+      if (!state.loader) {
+        throw new FederatedBrokerNotConfiguredError();
+      }
+      if (state.module) {
+        return state.module;
+      }
+      if (!state.modulePromise) {
+        state.modulePromise = state.loader().then(assertBrokerModule);
+      }
+      const loaded = await state.modulePromise;
+      state.module = loaded;
+      return loaded;
+    },
+    getLoaded: () => getState().module
   };
 };
 
@@ -89,11 +119,17 @@ const withTopicClient = <TEvent, TRequest, TReply>(
 export const configureFederatedBroker = (loader: BrokerModuleLoader): void => {
   const state = getState();
   state.loader = loader;
-  state.modulePromise = undefined;
+  delete state.module;
+  delete state.modulePromise;
 };
 
 export const createFederatedBrokerSdk = (loader?: BrokerModuleLoader): FederatedBrokerSdk => {
-  const load = makeLoader(loader);
+  const loaderHandle = makeLoader(loader);
+  const load = loaderHandle.load;
+
+  const ready = async (): Promise<void> => {
+    await load();
+  };
 
   const publish = async (topic: Topic, payload: unknown, options?: PublishOptions): Promise<Envelope> => {
     const broker = await load();
@@ -101,6 +137,11 @@ export const createFederatedBrokerSdk = (loader?: BrokerModuleLoader): Federated
   };
 
   const subscribe = (topicPattern: string, handler: EventHandler, options?: SubscribeOptions): (() => void) => {
+    const loaded = loaderHandle.getLoaded();
+    if (loaded) {
+      return loaded.subscribe(topicPattern, handler, options);
+    }
+
     let unsubscribed = false;
     let unsubscribeFromBroker: (() => void) | undefined;
 
@@ -127,6 +168,11 @@ export const createFederatedBrokerSdk = (loader?: BrokerModuleLoader): Federated
   };
 
   const respond = (topicPattern: string, handler: RequestHandler, options?: RespondOptions): (() => void) => {
+    const loaded = loaderHandle.getLoaded();
+    if (loaded) {
+      return loaded.respond(topicPattern, handler, options);
+    }
+
     let unsubscribed = false;
     let unsubscribeFromBroker: (() => void) | undefined;
 
@@ -174,6 +220,7 @@ export const createFederatedBrokerSdk = (loader?: BrokerModuleLoader): Federated
     withTopicClient<TEvent, TRequest, TReply>(sdk, topicName);
 
   const sdk: FederatedBrokerSdk = {
+    ready,
     publish,
     subscribe,
     request,
@@ -191,6 +238,7 @@ export const createFederatedBrokerSdk = (loader?: BrokerModuleLoader): Federated
 
 const defaultSdk = createFederatedBrokerSdk();
 
+export const ready = defaultSdk.ready;
 export const publish = defaultSdk.publish;
 export const subscribe = defaultSdk.subscribe;
 export const request = defaultSdk.request;
@@ -204,7 +252,8 @@ export const topic = defaultSdk.topic;
 
 export const unsafeResetFederatedBrokerForTests = (): void => {
   const state = getState();
-  state.loader = undefined;
-  state.modulePromise = undefined;
+  delete state.loader;
+  delete state.module;
+  delete state.modulePromise;
 };
 

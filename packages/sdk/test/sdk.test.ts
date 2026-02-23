@@ -70,6 +70,21 @@ describe("@federated-kafka/sdk", () => {
     expect(brokerModule.setDriver).toHaveBeenCalledWith({ type: "memory", ringBufferSize: 200 });
   });
 
+  it("registers subscribe/respond synchronously after ready()", async () => {
+    const brokerModule = makeMockBrokerModule();
+    const loader = vi.fn(async () => brokerModule);
+    const sdk = createFederatedBrokerSdk(loader);
+
+    await sdk.ready();
+    const unsubscribe = sdk.subscribe("billing.*", () => undefined);
+    const stopResponding = sdk.respond("math.add", () => ({ result: 1 }));
+
+    expect(brokerModule.subscribe).toHaveBeenCalledTimes(1);
+    expect(brokerModule.respond).toHaveBeenCalledTimes(1);
+    expect(typeof unsubscribe).toBe("function");
+    expect(typeof stopResponding).toBe("function");
+  });
+
   it("creates typed topic helpers for publish/request/subscribe/respond/replay", async () => {
     const brokerModule = makeMockBrokerModule();
     const loader = vi.fn(async () => brokerModule);

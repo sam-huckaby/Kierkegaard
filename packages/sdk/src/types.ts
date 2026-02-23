@@ -79,6 +79,7 @@ export type TopicClient<TEvent = unknown, TRequest = unknown, TReply = unknown> 
 };
 
 export type FederatedBrokerSdk = {
+  ready(): Promise<void>;
   publish(topic: Topic, payload: unknown, options?: PublishOptions): Promise<Envelope>;
   subscribe(topicPattern: string, handler: EventHandler, options?: SubscribeOptions): Unsubscribe;
   request<TReply = unknown>(topic: Topic, payload: unknown, options?: RequestOptions): Promise<TReply>;
