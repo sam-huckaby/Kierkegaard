@@ -1,0 +1,22 @@
+{
+  "name": "kierkegaard",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Kafka-like durable pub/sub and request/reply for module-federated frontends",
+  "packageManager": "pnpm@10.17.0",
+  "scripts": {
+    "dev": "pnpm -r --parallel --stream --if-present run dev",
+    "build": "pnpm -r --if-present run build",
+    "test": "pnpm -r --if-present run test",
+    "lint": "pnpm -r --if-present run lint",
+    "typecheck": "pnpm -r --if-present run typecheck",
+    "e2e": "pnpm -F @kierkegaard/host-shell run e2e"
+  },
+  "devDependencies": {
+    "@types/node": "^25.3.0",
+    "concurrently": "^9.2.1",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.18"
+  }
+}
